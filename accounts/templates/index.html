@@ -1,0 +1,276 @@
+{% load static %} {% load crispy_forms_tags %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="title" content="project" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="language" content="English" />
+    <meta name="author" content="vinayak sharma" />
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <title>{{title}}</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <script>
+      function handleCredentialResponse(response) {
+        console.log("Encoded JWT ID token: " + response.credential);
+
+        fetch("/auth-receiver", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            credential: response.credential,
+          }),
+        })
+          .then((res) => res.json())
+          .then((data) => {
+            console.log(data);
+            if (data.redirect) {
+              window.location.href = data.redirect;
+            } else {
+              alert("Login failed: " + (data.error || "Unknown error"));
+            }
+          })
+          .catch((err) => {
+            console.error("Fetch error:", err);
+            alert("Login failed due to network/server issue");
+          });
+      }
+    </script>
+
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <!-- Font Awesome -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
+    />
+
+    <!-- Custom CSS if needed -->
+    <link rel="stylesheet" type="text/css" href="{% static "index.css" %}" />
+
+    <!-- Message alerts -->
+    {% if messages %} {% for message in messages %}
+    <script>
+      alert("{{ message }}");
+    </script>
+    {% endfor %} {% endif %}
+  </head>
+
+  <body class="bg-gray-50 min-h-screen">
+    <!-- Fixed Navbar -->
+    <header class="fixed top-0 w-full bg-gray-900 shadow-lg z-50">
+      <nav class="container mx-auto px-4">
+        <div class="flex items-center justify-between h-16">
+          <!-- Logo/Brand -->
+          <div class="flex-shrink-0">
+            <a
+              href="{% url 'index' %}"
+              class="text-white text-xl font-bold hover:text-gray-300 transition-colors duration-200"
+            >
+              project
+            </a>
+          </div>
+
+          <!-- Desktop Menu -->
+          <div class="hidden md:block">
+            <div class="ml-10 flex items-baseline space-x-4">
+              <a
+                href="{% url 'index' %}"
+                class="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200"
+              >
+                Home
+              </a>
+              {% if user.is_authenticated %}
+              <a
+                href="{% url 'logout' %}"
+                class="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 flex items-center"
+              >
+                <i class="fa fa-sign-out mr-2"></i>
+                Logout
+              </a>
+              {% else %}
+              <a
+                href="{% url 'register' %}"
+                class="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 flex items-center"
+              >
+                <i class="fa fa-user mr-2"></i>
+                Sign up
+              </a>
+              <a
+                href="{% url 'login' %}"
+                class="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 flex items-center"
+              >
+                <i class="fa fa-sign-in mr-2"></i>
+                Log in
+              </a>
+              {% endif %}
+            </div>
+          </div>
+
+          <!-- Mobile menu button -->
+          <div class="md:hidden">
+            <button
+              id="mobile-menu-button"
+              type="button"
+              class="bg-gray-900 inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-white hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white transition-colors duration-200"
+              aria-controls="mobile-menu"
+              aria-expanded="false"
+            >
+              <span class="sr-only">Open main menu</span>
+              <!-- Hamburger icon -->
+              <svg
+                id="hamburger-icon"
+                class="block h-6 w-6"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                aria-hidden="true"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M4 6h16M4 12h16M4 18h16"
+                />
+              </svg>
+              <!-- Close icon -->
+              <svg
+                id="close-icon"
+                class="hidden h-6 w-6"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                aria-hidden="true"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="md:hidden hidden">
+          <div
+            class="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-gray-800 rounded-b-lg"
+          >
+            <a
+              href="{% url 'index' %}"
+              class="text-gray-300 hover:bg-gray-700 hover:text-white block px-3 py-2 rounded-md text-base font-medium transition-colors duration-200"
+            >
+              Home
+            </a>
+            {% if user.is_authenticated %}
+            <a
+              href="{% url 'logout' %}"
+              class="text-gray-300 hover:bg-gray-700 hover:text-white block px-3 py-2 rounded-md text-base font-medium transition-colors duration-200"
+            >
+              <i class="fa fa-sign-out mr-2"></i>
+              Logout
+            </a>
+            {% else %}
+            <a
+              href="{% url 'register' %}"
+              class="text-gray-300 hover:bg-gray-700 hover:text-white block px-3 py-2 rounded-md text-base font-medium transition-colors duration-200"
+            >
+              <i class="fa fa-user mr-2"></i>
+              Sign up
+            </a>
+            <a
+              href="{% url 'login' %}"
+              class="text-gray-300 hover:bg-gray-700 hover:text-white block px-3 py-2 rounded-md text-base font-medium transition-colors duration-200"
+            >
+              <i class="fa fa-sign-in mr-2"></i>
+              Log in
+            </a>
+            {% endif %}
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <!-- Main Content Area with top padding to account for fixed navbar -->
+    <main class="pt-20 pb-8">
+      <div class="container mx-auto px-4">
+        {% block start %}
+        <div class="text-center">
+          {% if user.is_authenticated %}
+          <h1 class="text-4xl font-bold text-gray-900 mb-6">
+            Welcome back {% if user.username|slice:":7" == "google_" %} 
+            {{user.first_name }} {{ user.last_name }} 
+            {% else %} 
+            {{ user.username}} 
+            {% endif %}
+          </h1>
+          {% else %}
+          <h1 class="text-4xl font-bold text-gray-900 mb-6">
+            Log in, please...
+          </h1>
+          {% endif %}
+        </div>
+        {% endblock %}
+      </div>
+    </main>
+
+    <!-- JavaScript for mobile menu toggle -->
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const mobileMenuButton = document.getElementById("mobile-menu-button");
+        const mobileMenu = document.getElementById("mobile-menu");
+        const hamburgerIcon = document.getElementById("hamburger-icon");
+        const closeIcon = document.getElementById("close-icon");
+
+        mobileMenuButton.addEventListener("click", function () {
+          const isExpanded =
+            mobileMenuButton.getAttribute("aria-expanded") === "true";
+
+          // Toggle menu visibility
+          mobileMenu.classList.toggle("hidden");
+
+          // Toggle icons
+          hamburgerIcon.classList.toggle("hidden");
+          closeIcon.classList.toggle("hidden");
+
+          // Update aria-expanded attribute
+          mobileMenuButton.setAttribute("aria-expanded", !isExpanded);
+        });
+
+        // Close mobile menu when clicking outside
+        document.addEventListener("click", function (event) {
+          const isClickInsideNav =
+            mobileMenuButton.contains(event.target) ||
+            mobileMenu.contains(event.target);
+
+          if (!isClickInsideNav && !mobileMenu.classList.contains("hidden")) {
+            mobileMenu.classList.add("hidden");
+            hamburgerIcon.classList.remove("hidden");
+            closeIcon.classList.add("hidden");
+            mobileMenuButton.setAttribute("aria-expanded", "false");
+          }
+        });
+
+        // Close mobile menu when window is resized to desktop size
+        window.addEventListener("resize", function () {
+          if (window.innerWidth >= 768) {
+            // md breakpoint
+            mobileMenu.classList.add("hidden");
+            hamburgerIcon.classList.remove("hidden");
+            closeIcon.classList.add("hidden");
+            mobileMenuButton.setAttribute("aria-expanded", "false");
+          }
+        });
+      });
+    </script>
+  </body>
+</html>
