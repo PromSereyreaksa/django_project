@@ -16,31 +16,27 @@
 
     <script>
       function handleCredentialResponse(response) {
-        console.log("Encoded JWT ID token: " + response.credential);
+  console.log("Encoded JWT ID token: " + response.credential);
 
-        fetch("/auth-receiver", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            credential: response.credential,
-          }),
-        })
-          .then((res) => res.json())
-          .then((data) => {
-            console.log(data);
-            if (data.redirect) {
-              window.location.href = data.redirect;
-            } else {
-              alert("Login failed: " + (data.error || "Unknown error"));
-            }
-          })
-          .catch((err) => {
-            console.error("Fetch error:", err);
-            alert("Login failed due to network/server issue");
-          });
+  fetch("/auth-receiver", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ credential: response.credential }),
+  })
+    .then((res) => res.json())
+    .then((data) => {
+      if (data.redirect) {
+        // Redirect to dashboard or homepage after login
+        window.location.href = data.redirect;
+      } else {
+        alert("Login failed: " + (data.error || "Unknown error"));
       }
+    })
+    .catch(() => {
+      alert("Login failed due to network/server issue");
+    });
+}
+
     </script>
 
     <script src="https://accounts.google.com/gsi/client" async defer></script>
