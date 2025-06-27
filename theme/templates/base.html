@@ -1,19 +1,188 @@
-{% load static tailwind_tags %}
+{% load static %} {% load crispy_forms_tags %}
 <!DOCTYPE html>
 <html lang="en">
-	<head>
-    <title>Django Tailwind</title>
-		<meta charset="UTF-8">
-		<meta name="viewport" content="width=device-width, initial-scale=1.0">
-		<meta http-equiv="X-UA-Compatible" content="ie=edge">
-		{% tailwind_css %}
-	</head>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="title" content="project" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="language" content="English" />
+    <meta name="author" content="vinayak sharma" />
 
-	<body class="bg-gray-50 font-serif leading-normal tracking-normal">
-		<div class="container mx-auto">
-			<section class="flex items-center justify-center h-screen">
-				<h1 class="text-5xl">Django + Tailwind = ❤️</h1>
-			</section>
-		</div>
-	</body>
+    <title>{% block title %}My Blog{% endblock %}</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" type="text/css" href="{% static 'index.css' %}" />
+
+    <!-- Google Login -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <script>
+      function handleCredentialResponse(response) {
+        console.log("Encoded JWT ID token: " + response.credential);
+
+        fetch("/auth-receiver", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ credential: response.credential }),
+        })
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.redirect) {
+            window.location.href = data.redirect;
+          } else {
+            alert("Login failed: " + (data.error || "Unknown error"));
+          }
+        })
+        .catch(() => {
+          alert("Login failed due to network/server issue");
+        });
+      }
+    </script>
+
+    {% block extra_head %}{% endblock %}
+
+    <!-- Message alerts -->
+    {% if messages %}
+      {% for message in messages %}
+        <script>alert("{{ message }}");</script>
+      {% endfor %}
+    {% endif %}
+  </head>
+
+  <body class="bg-gray-50 min-h-screen font-serif leading-normal tracking-normal">
+    <!-- Navbar -->
+    <header class="fixed top-0 w-full bg-gray-900 shadow-lg z-50">
+      <nav class="container mx-auto px-4">
+        <div class="flex items-center justify-between h-16">
+          <!-- Logo/Brand -->
+          <div class="flex-shrink-0">
+            <a href="{% url 'home' %}" class="text-white text-xl font-bold hover:text-gray-300 transition-colors duration-200">
+              Blog
+            </a>
+          </div>
+
+          <!-- Desktop Menu -->
+          <div class="hidden md:block">
+            <div class="ml-10 flex items-baseline space-x-4">
+              <a href="{% url 'home' %}" class="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200">
+                Home
+              </a>
+              {% if user.is_authenticated %}
+              <a href="{% url 'profile' %}" class="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 flex items-center">
+                {% if user.profile.avatar %}
+  <img src="{{ user.profile.avatar }}" alt="avatar" class="w-6 h-6 rounded-full object-cover mr-2 inline-block align-middle" />
+{% else %}
+  <i class="fa fa-user mr-2 text-xl inline-block align-middle"></i>
+{% endif %}
+<span class="align-middle">
+  {% if user.username|slice:":7" == "google_" %}
+    {{ user.first_name }} {{ user.last_name }}
+  {% else %}
+    {{ user.username }}
+  {% endif %}
+</span>
+              <a href="{% url 'logout' %}" class="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 flex items-center">
+                <i class="fa fa-sign-out mr-2"></i> Logout
+              </a>
+              {% else %}
+              <a href="{% url 'register' %}" class="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 flex items-center">
+                <i class="fa fa-user mr-2"></i> Sign up
+              </a>
+              <a href="{% url 'login' %}" class="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 flex items-center">
+                <i class="fa fa-sign-in mr-2"></i> Log in
+              </a>
+              {% endif %}
+            </div>
+          </div>
+
+          <!-- Mobile Menu Button -->
+          <div class="md:hidden">
+            <button id="mobile-menu-button" type="button" class="bg-gray-900 inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-white hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white transition-colors duration-200" aria-controls="mobile-menu" aria-expanded="false">
+              <span class="sr-only">Open main menu</span>
+              <svg id="hamburger-icon" class="block h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+              </svg>
+              <svg id="close-icon" class="hidden h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="md:hidden hidden">
+          <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-gray-800 rounded-b-lg">
+            <a href="{% url 'home' %}" class="text-gray-300 hover:bg-gray-700 hover:text-white block px-3 py-2 rounded-md text-base font-medium transition-colors duration-200">Home</a>
+            {% if user.is_authenticated %}
+            <a href="{% url 'logout' %}" class="text-gray-300 hover:bg-gray-700 hover:text-white block px-3 py-2 rounded-md text-base font-medium transition-colors duration-200">
+              <i class="fa fa-sign-out mr-2"></i> Logout
+            </a>
+            {% else %}
+            <a href="{% url 'register' %}" class="text-gray-300 hover:bg-gray-700 hover:text-white block px-3 py-2 rounded-md text-base font-medium transition-colors duration-200">
+              <i class="fa fa-user mr-2"></i> Sign up
+            </a>
+            <a href="{% url 'login' %}" class="text-gray-300 hover:bg-gray-700 hover:text-white block px-3 py-2 rounded-md text-base font-medium transition-colors duration-200">
+              <i class="fa fa-sign-in mr-2"></i> Log in
+            </a>
+            {% endif %}
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main class="pt-20 pb-8">
+      <div class="container mx-auto px-4">
+        {% block content %}
+        <!-- Fallback content -->
+        <section class="flex items-center justify-center h-screen">
+          <h1 class="text-5xl">❤️</h1>
+        </section>
+        {% endblock %}
+      </div>
+    </main>
+
+    <!-- Mobile Menu Script -->
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const mobileMenuButton = document.getElementById("mobile-menu-button");
+        const mobileMenu = document.getElementById("mobile-menu");
+        const hamburgerIcon = document.getElementById("hamburger-icon");
+        const closeIcon = document.getElementById("close-icon");
+
+        mobileMenuButton.addEventListener("click", function () {
+          const isExpanded = mobileMenuButton.getAttribute("aria-expanded") === "true";
+          mobileMenu.classList.toggle("hidden");
+          hamburgerIcon.classList.toggle("hidden");
+          closeIcon.classList.toggle("hidden");
+          mobileMenuButton.setAttribute("aria-expanded", !isExpanded);
+        });
+
+        document.addEventListener("click", function (event) {
+          const isClickInsideNav = mobileMenuButton.contains(event.target) || mobileMenu.contains(event.target);
+          if (!isClickInsideNav && !mobileMenu.classList.contains("hidden")) {
+            mobileMenu.classList.add("hidden");
+            hamburgerIcon.classList.remove("hidden");
+            closeIcon.classList.add("hidden");
+            mobileMenuButton.setAttribute("aria-expanded", "false");
+          }
+        });
+
+        window.addEventListener("resize", function () {
+          if (window.innerWidth >= 768) {
+            mobileMenu.classList.add("hidden");
+            hamburgerIcon.classList.remove("hidden");
+            closeIcon.classList.add("hidden");
+            mobileMenuButton.setAttribute("aria-expanded", "false");
+          }
+        });
+      });
+    </script>
+  </body>
 </html>

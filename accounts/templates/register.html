@@ -1,7 +1,10 @@
-{% extends "index.html" %} {% load crispy_forms_tags %} {% block start %}
-<div
-  class="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8"
->
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+
+{% block title %}Register{% endblock %}
+
+{% block content %}
+<div class="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
   <div class="max-w-md w-full space-y-8">
     <div>
       <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
@@ -15,7 +18,6 @@
     <div class="bg-white shadow-xl rounded-lg p-8 border border-gray-200">
       <form method="POST" class="space-y-6">
         {% csrf_token %}
-
         <div class="space-y-4">{{ form|crispy }}</div>
 
         <div>
@@ -24,13 +26,8 @@
             class="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-gray-900 hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition duration-200 ease-in-out transform hover:scale-105"
           >
             <span class="absolute left-0 inset-y-0 flex items-center pl-3">
-              <svg
-                class="h-5 w-5 text-gray-300 group-hover:text-gray-200"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-              >
-                <path
-                  fill-rule="evenodd"
+              <svg class="h-5 w-5 text-gray-300 group-hover:text-gray-200" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd"
                   d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
                   clip-rule="evenodd"
                 />
@@ -43,17 +40,15 @@
         <div class="text-center">
           <p class="text-sm text-gray-600">
             Already have an account?
-            <a
-              href="{% url 'login' %}"
-              class="font-medium text-blue-600 hover:text-blue-500 transition duration-200 hover:underline"
-            >
+            <a href="{% url 'login' %}" class="font-medium text-blue-600 hover:text-blue-500 transition duration-200 hover:underline">
               Sign in here
             </a>
           </p>
         </div>
       </form>
-      <div
-        id="g_id_onload"
+
+      <!-- Google Sign-up -->
+      <div id="g_id_onload"
         data-client_id="1055977422174-v2f3tvqhtbh5lmtta7ukhd3m1m9qehr8.apps.googleusercontent.com"
         data-context="signup"
         data-ux_mode="popup"
@@ -61,8 +56,7 @@
         data-auto_prompt="false"
       ></div>
 
-      <div
-        class="g_id_signin"
+      <div class="g_id_signin"
         data-type="standard"
         data-shape="rectangular"
         data-theme="outline"
@@ -73,4 +67,4 @@
     </div>
   </div>
 </div>
-{% endblock start %}
+{% endblock %}

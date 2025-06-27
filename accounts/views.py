@@ -18,10 +18,22 @@ import json
 from .models import Profile
 from google.auth.transport import requests as grequests
 from django.contrib.auth import logout
+import uuid
+from django.shortcuts import redirect
+from django.contrib.auth.decorators import login_required
+from .supabase_client import SUPABASE_URL, supabase
+from .forms import ProfileForm
 
 # Create your views here.
 def index(request):
     return render(request, 'index.html', {'title':'index'})
+
+def home(request):
+    if not request.user.is_authenticated:
+        messages.error(request, "You need to be logged in to access this page.")
+        return redirect('login')
+    return render(request, 'home.html', {'title':'home'})
+
 ### register
 def register(request):
     if request.method == 'POST':
@@ -60,7 +72,7 @@ def Login(request):
             #so if it returns a user object, we can log the user in
             form = login(request,user) #to make sure they are who they say they are
             messages.success(request, f'Welcome {username}!')
-            return redirect('index')
+            return redirect('home')
         else:
             messages.error(request, 'Invalid username or password')
             form = AuthenticationForm()
@@ -100,15 +112,11 @@ def auth_receiver(request):
                 'first_name': first_name,
                 'last_name': last_name
             })
-
             # Create profile if doesn't exist
             Profile.objects.get_or_create(user=user)
-
             # Log in
             login(request, user)
-
-            return JsonResponse({'status': 'logged_in', 'redirect': '/'})
-
+            return JsonResponse({'status': 'logged_in', 'redirect': '/home'})
         except ValueError:
             return JsonResponse({'error': 'Invalid token'}, status=400)
 
@@ -119,4 +127,63 @@ def logout_view(request):
     messages.success(request, "You have successfully logged out.")
     return redirect('index')
 
+
+@login_required
+def upload_avatar(request):
+    if request.method == 'POST' and request.FILES.get('avatar'):
+        avatar_file = request.FILES['avatar']
+        file_ext = avatar_file.name.split('.')[-1]
+        unique_filename = f"{uuid.uuid4()}.{file_ext}"
+        file_path = f"avatars/{unique_filename}"
+        
+        #Upload to supabase storage/bucket
+        supabase.storage.from_("avatar").upload(file_path, avatar_file,{
+            "contentType" : avatar_file.content_type
+        })
+        
+        #make it public and get URL
+        public_url = supabase.storage.from_("avatar").get_public_url(file_path).get('publicURL')
+        
+        profile = request.user.profile
+        profile.avatar = public_url  # Store the public URL in the Profile model
+        profile.save()
+        messages.success(request, "Avatar uploaded successfully.")
+        return redirect('home')
+    
+@login_required
+def profile_views(request):
+    profile = request.user.profile
+
+    if request.method == 'POST' and 'avatar' in request.FILES:
+        avatar_file = request.FILES['avatar']
+        # Generate unique filename
+        filename = f"avatars/{uuid.uuid4().hex}_{avatar_file.name}"
+
+        # Upload to Supabase storage bucket (replace 'avatars' with your bucket name)
+        res = supabase.storage.from_('avatars').upload(filename, avatar_file)
+        if res.get('error'):
+            # Handle error
+            print("Upload error:", res['error'])
+            # Optionally add messages.error or similar
+        else:
+            # Build public URL
+            public_url = f"{SUPABASE_URL}/storage/v1/object/public/avatars/{filename}"
+            profile.avatar = public_url
+            profile.save()
+            return redirect('profile')
+
+    return render(request, 'profile_av.html', {'profile': profile})
+
+
+@login_required
+def profile_update(request):
+    profile = request.user.profile
+    if request.method == 'POST':
+        form = ProfileForm(request.POST, request.FILES, instance=profile)
+        if form.is_valid():
+            form.save()
+            return redirect('profile')  # or wherever you want
+    else:
+        form = ProfileForm(instance=profile)
+    return render(request, 'profile_update.html', {'form': form})
 
