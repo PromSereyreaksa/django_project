@@ -149,8 +149,7 @@ Feel free to fork the repo and submit pull requests. All kinds of contributions 
 
 ## 📄 License
 
-This project is licensed under the MIT License.
+This project is licensed under the [MIT License](LICENSE).
 
 ---
 
-Let me know if you want this saved as a downloadable `README.md` file!
