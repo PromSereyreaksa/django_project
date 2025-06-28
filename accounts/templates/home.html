@@ -1,30 +1,273 @@
-{% extends "index.html" %} {% load crispy_forms_tags %} {% block start %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="/static/style.css">
-    <title>Homepage</title>
-</head>
-<body>
-    <!-- Triggered Avatar Upload Popup -->
-<div id="avatarModal" class="fixed inset-0 bg-black bg-opacity-50 items-center justify-center hidden z-50">
-  <div class="bg-white p-6 rounded-lg shadow-lg w-80">
-    <h2 class="text-lg font-semibold mb-4 text-gray-800">Upload Avatar</h2>
-    <form id="avatarForm" method="POST" enctype="multipart/form-data" action="{% url 'upload_avatar' %}">
-      {% csrf_token %}
-      <input type="file" name="avatar" accept="image/*" class="mb-4 w-full text-sm" required>
-      <div class="flex justify-end gap-2">
-        <button type="button" onclick="toggleModal(false)" class="px-4 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400">Cancel</button>
-        <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Upload</button>
-      </div>
-    </form>
-  </div>
-</div>
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
 
+{% block title %}Welcome to Our Blog Platform{% endblock %}
 
+{% block content %}
+
+<!-- Hero Section -->
+<section class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-800 text-white py-20">
+    <!-- Background decorative elements -->
+    <div class="absolute inset-0 overflow-hidden pointer-events-none">
+        <div class="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-white/10 to-white/5 rounded-full blur-3xl"></div>
+        <div class="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-tr from-white/10 to-white/5 rounded-full blur-3xl"></div>
+        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-r from-white/5 to-transparent rounded-full blur-3xl"></div>
+    </div>
     
-</body>
-</html>
+    <div class="container mx-auto px-6 relative z-10">
+        <div class="text-center max-w-4xl mx-auto">
+            <div class="inline-flex items-center justify-center w-20 h-20 bg-white/20 backdrop-blur-sm rounded-2xl mb-8 shadow-2xl">
+                <i class="fas fa-blog text-3xl"></i>
+            </div>
+            
+            <h1 class="text-5xl md:text-7xl font-bold mb-6 leading-tight">
+                Share Your <span class="bg-gradient-to-r from-yellow-300 to-orange-300 bg-clip-text text-transparent">Stories</span>
+            </h1>
+            
+            <p class="text-xl md:text-2xl mb-8 text-white/90 max-w-2xl mx-auto leading-relaxed">
+                Join thousands of writers sharing their thoughts, experiences, and creativity with the world.
+            </p>
+            
+            <div class="flex flex-col sm:flex-row gap-4 justify-center mb-12">
+                {% if user.is_authenticated %}
+                    <a href="{% url 'profile' %}" class="inline-flex items-center justify-center px-8 py-4 bg-white text-blue-600 rounded-2xl font-semibold text-lg hover:bg-gray-100 transition-all duration-300 transform hover:-translate-y-1 shadow-xl">
+                        <i class="fas fa-user-circle mr-3"></i>
+                        Go to Profile
+                    </a>
+                    <button onclick="window.location.href='/profile/'" class="inline-flex items-center justify-center px-8 py-4 bg-white/20 backdrop-blur-sm text-white rounded-2xl font-semibold text-lg border border-white/30 hover:bg-white/30 transition-all duration-300 transform hover:-translate-y-1">
+                        <i class="fas fa-camera mr-3"></i>
+                        Update Avatar
+                    </button>
+                {% else %}
+                    <a href="{% url 'register' %}" class="inline-flex items-center justify-center px-8 py-4 bg-white text-blue-600 rounded-2xl font-semibold text-lg hover:bg-gray-100 transition-all duration-300 transform hover:-translate-y-1 shadow-xl">
+                        <i class="fas fa-pen-fancy mr-3"></i>
+                        Start Writing Today
+                    </a>
+                    <a href="{% url 'login' %}" class="inline-flex items-center justify-center px-8 py-4 bg-white/20 backdrop-blur-sm text-white rounded-2xl font-semibold text-lg border border-white/30 hover:bg-white/30 transition-all duration-300 transform hover:-translate-y-1">
+                        <i class="fas fa-sign-in-alt mr-3"></i>
+                        Sign In
+                    </a>
+                {% endif %}
+            </div>
+            
+            <!-- Quick Stats -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-3xl mx-auto">
+                <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-6 text-center border border-white/20">
+                    <div class="text-3xl font-bold mb-2">10K+</div>
+                    <div class="text-white/80 font-medium">Active Writers</div>
+                </div>
+                
+                <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-6 text-center border border-white/20">
+                    <div class="text-3xl font-bold mb-2">50K+</div>
+                    <div class="text-white/80 font-medium">Stories Published</div>
+                </div>
+                
+                <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-6 text-center border border-white/20">
+                    <div class="text-3xl font-bold mb-2">1M+</div>
+                    <div class="text-white/80 font-medium">Monthly Readers</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="py-20 px-6 bg-gradient-to-br from-gray-50 to-blue-50">
+    <div class="container mx-auto max-w-6xl">
+        <div class="text-center mb-16">
+            <h2 class="text-4xl md:text-5xl font-bold text-gray-800 mb-6">
+                Why Choose Our Platform?
+            </h2>
+            <p class="text-xl text-gray-600 max-w-2xl mx-auto">
+                Everything you need to create, share, and grow your writing community.
+            </p>
+        </div>
+        
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <!-- Feature 1 -->
+            <div class="bg-white/70 backdrop-blur-sm rounded-2xl p-8 text-center border border-white/20 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2">
+                <div class="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
+                    <i class="fas fa-edit text-white text-2xl"></i>
+                </div>
+                <h3 class="text-xl font-bold text-gray-800 mb-4">Rich Text Editor</h3>
+                <p class="text-gray-600 leading-relaxed">
+                    Write with our powerful editor featuring formatting, images, and multimedia support.
+                </p>
+            </div>
+            
+            <!-- Feature 2 -->
+            <div class="bg-white/70 backdrop-blur-sm rounded-2xl p-8 text-center border border-white/20 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2">
+                <div class="w-16 h-16 bg-gradient-to-r from-green-500 to-teal-600 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
+                    <i class="fas fa-users text-white text-2xl"></i>
+                </div>
+                <h3 class="text-xl font-bold text-gray-800 mb-4">Community Driven</h3>
+                <p class="text-gray-600 leading-relaxed">
+                    Connect with like-minded writers and build meaningful relationships through shared stories.
+                </p>
+            </div>
+            
+            <!-- Feature 3 -->
+            <div class="bg-white/70 backdrop-blur-sm rounded-2xl p-8 text-center border border-white/20 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2">
+                <div class="w-16 h-16 bg-gradient-to-r from-orange-500 to-red-600 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
+                    <i class="fas fa-chart-line text-white text-2xl"></i>
+                </div>
+                <h3 class="text-xl font-bold text-gray-800 mb-4">Analytics & Insights</h3>
+                <p class="text-gray-600 leading-relaxed">
+                    Track your story performance and understand your audience with detailed analytics.
+                </p>
+            </div>
+            
+            <!-- Feature 4 -->
+            <div class="bg-white/70 backdrop-blur-sm rounded-2xl p-8 text-center border border-white/20 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2">
+                <div class="w-16 h-16 bg-gradient-to-r from-purple-500 to-pink-600 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
+                    <i class="fas fa-mobile-alt text-white text-2xl"></i>
+                </div>
+                <h3 class="text-xl font-bold text-gray-800 mb-4">Mobile Optimized</h3>
+                <p class="text-gray-600 leading-relaxed">
+                    Write and read seamlessly across all devices with our responsive design.
+                </p>
+            </div>
+            
+            <!-- Feature 5 -->
+            <div class="bg-white/70 backdrop-blur-sm rounded-2xl p-8 text-center border border-white/20 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2">
+                <div class="w-16 h-16 bg-gradient-to-r from-indigo-500 to-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
+                    <i class="fas fa-shield-alt text-white text-2xl"></i>
+                </div>
+                <h3 class="text-xl font-bold text-gray-800 mb-4">Secure & Private</h3>
+                <p class="text-gray-600 leading-relaxed">
+                    Your content is protected with enterprise-grade security and privacy controls.
+                </p>
+            </div>
+            
+            <!-- Feature 6 -->
+            <div class="bg-white/70 backdrop-blur-sm rounded-2xl p-8 text-center border border-white/20 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2">
+                <div class="w-16 h-16 bg-gradient-to-r from-yellow-500 to-orange-600 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
+                    <i class="fas fa-rocket text-white text-2xl"></i>
+                </div>
+                <h3 class="text-xl font-bold text-gray-800 mb-4">Fast & Reliable</h3>
+                <p class="text-gray-600 leading-relaxed">
+                    Lightning-fast loading times and 99.9% uptime ensure your stories are always accessible.
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Call to Action Section -->
+<section class="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-20 relative overflow-hidden">
+    <div class="absolute inset-0 bg-gradient-to-r from-blue-600/20 to-purple-600/20"></div>
+    
+    <div class="container mx-auto px-6 text-center relative z-10">
+        <div class="max-w-3xl mx-auto">
+            <h2 class="text-4xl md:text-5xl font-bold mb-6">
+                Ready to Start Your Journey?
+            </h2>
+            
+            <p class="text-xl mb-8 text-white/90">
+                Join our community today and start sharing your unique voice with the world.
+            </p>
+            
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                {% if not user.is_authenticated %}
+                    <a href="{% url 'register' %}" class="inline-flex items-center justify-center px-8 py-4 bg-white text-blue-600 rounded-2xl font-semibold text-lg hover:bg-gray-100 transition-all duration-300 transform hover:-translate-y-1 shadow-xl">
+                        <i class="fas fa-user-plus mr-3"></i>
+                        Get Started Free
+                    </a>
+                    
+                    <a href="{% url 'login' %}" class="inline-flex items-center justify-center px-8 py-4 bg-white/20 backdrop-blur-sm text-white rounded-2xl font-semibold text-lg border border-white/30 hover:bg-white/30 transition-all duration-300 transform hover:-translate-y-1">
+                        <i class="fas fa-sign-in-alt mr-3"></i>
+                        Sign In
+                    </a>
+                {% else %}
+                    <button onclick="toggleModal(true)" class="inline-flex items-center justify-center px-8 py-4 bg-white text-blue-600 rounded-2xl font-semibold text-lg hover:bg-gray-100 transition-all duration-300 transform hover:-translate-y-1 shadow-xl">
+                        <i class="fas fa-camera mr-3"></i>
+                        Update Your Avatar
+                    </button>
+                    
+                    <a href="{% url 'profile' %}" class="inline-flex items-center justify-center px-8 py-4 bg-white/20 backdrop-blur-sm text-white rounded-2xl font-semibold text-lg border border-white/30 hover:bg-white/30 transition-all duration-300 transform hover:-translate-y-1">
+                        <i class="fas fa-user-circle mr-3"></i>
+                        View Profile
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+
+
+
+<script>
+function toggleModal(show) {
+    const modal = document.getElementById('avatarModal');
+    if (show) {
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+        document.body.style.overflow = 'hidden';
+    } else {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+        document.body.style.overflow = 'auto';
+    }
+}
+
+// Enhanced file input functionality
+const fileInput = document.getElementById('avatarInput');
+const uploadArea = document.getElementById('uploadArea');
+
+if (fileInput && uploadArea) {
+    fileInput.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            uploadArea.innerHTML = `
+                <div class="space-y-3">
+                    <div class="w-16 h-16 bg-gradient-to-r from-green-500 to-green-600 rounded-2xl flex items-center justify-center mx-auto shadow-lg">
+                        <i class="fas fa-check text-white text-2xl"></i>
+                    </div>
+                    <div>
+                        <p class="text-lg font-medium text-green-700">File selected: ${file.name}</p>
+                        <p class="text-sm text-gray-500">Ready to upload</p>
+                    </div>
+                </div>
+            `;
+        }
+    });
+
+    // Drag and drop functionality
+    uploadArea.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        uploadArea.classList.add('border-blue-400', 'bg-blue-50');
+    });
+
+    uploadArea.addEventListener('dragleave', function(e) {
+        e.preventDefault();
+        uploadArea.classList.remove('border-blue-400', 'bg-blue-50');
+    });
+
+    uploadArea.addEventListener('drop', function(e) {
+        e.preventDefault();
+        uploadArea.classList.remove('border-blue-400', 'bg-blue-50');
+        
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+            fileInput.files = files;
+            fileInput.dispatchEvent(new Event('change'));
+        }
+    });
+}
+
+// Close modal when clicking outside
+document.getElementById('avatarModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        toggleModal(false);
+    }
+});
+
+// Close modal with Escape key
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        toggleModal(false);
+    }
+});
+</script>
+
 {% endblock %}

@@ -1,70 +1,259 @@
 {% extends "base.html" %}
+
 {% load crispy_forms_tags %}
 
 {% block title %}Register{% endblock %}
 
 {% block content %}
-<div class="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+
+<div class="min-h-[80vh] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-white">
+
   <div class="max-w-md w-full space-y-8">
-    <div>
-      <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
-        Create your account
+    
+    <!-- Header section -->
+    <div class="text-center">
+      <div class="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-green-500 to-blue-600 rounded-2xl mb-6 shadow-2xl">
+        <i class="fas fa-user-plus text-white text-xl"></i>
+      </div>
+      
+      <h2 class="text-4xl font-bold bg-gradient-to-r from-gray-900 via-green-800 to-blue-800 bg-clip-text text-transparent mb-3">
+        Create Your Account
       </h2>
-      <p class="mt-2 text-center text-sm text-gray-600">
-        Join us today and get started
+      
+      <p class="text-lg text-gray-600">
+        Join our community and start sharing your stories
       </p>
     </div>
 
-    <div class="bg-white shadow-xl rounded-lg p-8 border border-gray-200">
-      <form method="POST" class="space-y-6">
-        {% csrf_token %}
-        <div class="space-y-4">{{ form|crispy }}</div>
+    <!-- Main register card -->
+    <div class="bg-white shadow-2xl rounded-3xl p-8 border border-gray-100 relative overflow-hidden">
+      
+      <!-- Subtle gradient overlay -->
+      <div class="absolute inset-0 bg-gradient-to-br from-green-50/30 to-blue-50/30 rounded-3xl"></div>
+      
+      <div class="relative z-10">
+        <form method="POST" class="space-y-6">
+          {% csrf_token %}
+          
+          <!-- Form fields with enhanced styling -->
+          <div class="space-y-5">
+            <div class="crispy-form-wrapper">
+              {{ form|crispy }}
+            </div>
+          </div>
 
-        <div>
-          <button
-            type="submit"
-            class="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-gray-900 hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition duration-200 ease-in-out transform hover:scale-105"
-          >
-            <span class="absolute left-0 inset-y-0 flex items-center pl-3">
-              <svg class="h-5 w-5 text-gray-300 group-hover:text-gray-200" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd"
-                  d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                  clip-rule="evenodd"
-                />
-              </svg>
-            </span>
-            Sign up
-          </button>
+          <!-- Sign up button -->
+          <div>
+            <button
+              type="submit"
+              class="group relative w-full flex justify-center items-center py-4 px-6 bg-gradient-to-r from-green-500 to-blue-600 text-white font-semibold rounded-2xl shadow-xl hover:shadow-2xl focus:outline-none focus:ring-4 focus:ring-green-300/50 transition-all duration-300 transform hover:-translate-y-1 overflow-hidden"
+            >
+              <div class="absolute inset-0 bg-gradient-to-r from-green-600 to-blue-700 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              
+              <span class="absolute left-0 inset-y-0 flex items-center pl-4 relative z-10">
+                <i class="fas fa-check-circle text-xl text-white/80 group-hover:text-white transition-colors duration-300"></i>
+              </span>
+              
+              <span class="relative z-10 ml-8">Create Account</span>
+            </button>
+          </div>
+
+          <!-- Terms and privacy notice -->
+          <div class="text-center">
+            <p class="text-xs text-gray-500 leading-relaxed">
+              By creating an account, you agree to our
+              <a href="#" class="text-blue-600 hover:text-green-600 transition-colors duration-300 underline">Terms of Service</a>
+              and
+              <a href="#" class="text-blue-600 hover:text-green-600 transition-colors duration-300 underline">Privacy Policy</a>
+            </p>
+          </div>
+        </form>
+
+        <!-- Divider -->
+        <div class="mt-8 mb-6">
+          <div class="relative">
+            <div class="absolute inset-0 flex items-center">
+              <div class="w-full border-t border-gray-300"></div>
+            </div>
+            <div class="relative flex justify-center text-sm">
+              <span class="px-4 bg-white text-gray-500 font-medium">Or sign up with</span>
+            </div>
+          </div>
         </div>
 
-        <div class="text-center">
-          <p class="text-sm text-gray-600">
+        <!-- Google Sign-up with enhanced styling -->
+        <div class="space-y-4">
+          <div class="flex justify-center">
+            <div class="google-signin-wrapper bg-gray-50 rounded-2xl p-4 shadow-lg border border-gray-200 hover:shadow-xl transition-all duration-300">
+              <div id="g_id_onload"
+                data-client_id="1055977422174-v2f3tvqhtbh5lmtta7ukhd3m1m9qehr8.apps.googleusercontent.com"
+                data-context="signup"
+                data-ux_mode="popup"
+                data-callback="handleCredentialResponse"
+                data-auto_prompt="false"
+              ></div>
+              
+              <div class="g_id_signin"
+                data-type="standard"
+                data-shape="rectangular"
+                data-theme="filled_blue"
+                data-text="signup_with"
+                data-size="large"
+                data-locale="en"
+                data-logo_alignment="left"
+              ></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sign in link -->
+        <div class="mt-8 text-center">
+          <p class="text-gray-600">
             Already have an account?
-            <a href="{% url 'login' %}" class="font-medium text-blue-600 hover:text-blue-500 transition duration-200 hover:underline">
+            <a href="{% url 'login' %}" class="font-semibold text-green-600 hover:text-blue-600 transition-all duration-300 hover:underline ml-1">
               Sign in here
             </a>
           </p>
         </div>
-      </form>
+      </div>
+    </div>
 
-      <!-- Google Sign-up -->
-      <div id="g_id_onload"
-        data-client_id="1055977422174-v2f3tvqhtbh5lmtta7ukhd3m1m9qehr8.apps.googleusercontent.com"
-        data-context="signup"
-        data-ux_mode="popup"
-        data-callback="handleCredentialResponse"
-        data-auto_prompt="false"
-      ></div>
+    <!-- Benefits section -->
+    <div class="grid grid-cols-3 gap-4 mt-8">
+      <div class="text-center">
+        <div class="w-10 h-10 bg-gradient-to-r from-green-500 to-green-600 rounded-xl flex items-center justify-center mx-auto mb-2">
+          <i class="fas fa-pen-fancy text-white text-sm"></i>
+        </div>
+        <p class="text-xs text-gray-600 font-medium">Write Stories</p>
+      </div>
+      
+      <div class="text-center">
+        <div class="w-10 h-10 bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl flex items-center justify-center mx-auto mb-2">
+          <i class="fas fa-users text-white text-sm"></i>
+        </div>
+        <p class="text-xs text-gray-600 font-medium">Join Community</p>
+      </div>
+      
+      <div class="text-center">
+        <div class="w-10 h-10 bg-gradient-to-r from-purple-500 to-purple-600 rounded-xl flex items-center justify-center mx-auto mb-2">
+          <i class="fas fa-star text-white text-sm"></i>
+        </div>
+        <p class="text-xs text-gray-600 font-medium">Get Featured</p>
+      </div>
+    </div>
 
-      <div class="g_id_signin"
-        data-type="standard"
-        data-shape="rectangular"
-        data-theme="outline"
-        data-text="signup_with"
-        data-size="large"
-        data-logo_alignment="left"
-      ></div>
+    <!-- Security info -->
+    <div class="text-center">
+      <div class="flex items-center justify-center space-x-6 text-sm text-gray-500">
+        <div class="flex items-center">
+          <i class="fas fa-shield-alt mr-2 text-green-500"></i>
+          <span>Secure Registration</span>
+        </div>
+        <div class="flex items-center">
+          <i class="fas fa-envelope-circle-check mr-2 text-blue-500"></i>
+          <span>Email Verified</span>
+        </div>
+      </div>
     </div>
   </div>
 </div>
+
+<!-- Enhanced form styling -->
+<style>
+  .crispy-form-wrapper .form-group {
+    margin-bottom: 1.5rem;
+  }
+  
+  .crispy-form-wrapper label {
+    display: block;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 0.5rem;
+    font-size: 0.875rem;
+  }
+  
+  .crispy-form-wrapper input[type="text"],
+  .crispy-form-wrapper input[type="email"],
+  .crispy-form-wrapper input[type="password"] {
+    width: 100%;
+    padding: 0.875rem 1rem;
+    border: 2px solid #e5e7eb;
+    border-radius: 1rem;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    background: rgba(255, 255, 255, 0.9);
+  }
+  
+  .crispy-form-wrapper input[type="text"]:focus,
+  .crispy-form-wrapper input[type="email"]:focus,
+  .crispy-form-wrapper input[type="password"]:focus {
+    outline: none;
+    border-color: #10b981;
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+    background: rgba(255, 255, 255, 1);
+  }
+  
+  .crispy-form-wrapper .invalid-feedback {
+    color: #ef4444;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+  }
+  
+  .crispy-form-wrapper .form-control.is-invalid {
+    border-color: #ef4444;
+  }
+  
+  .crispy-form-wrapper .form-control.is-invalid:focus {
+    border-color: #ef4444;
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+  }
+  
+  .google-signin-wrapper {
+    display: inline-block;
+  }
+  
+  /* Custom checkbox styling */
+  .crispy-form-wrapper input[type="checkbox"] {
+    width: 1.125rem;
+    height: 1.125rem;
+    border-radius: 0.375rem;
+    border: 2px solid #d1d5db;
+    margin-right: 0.5rem;
+  }
+  
+  .crispy-form-wrapper input[type="checkbox"]:checked {
+    background-color: #10b981;
+    border-color: #10b981;
+  }
+  
+  /* Help text styling */
+  .crispy-form-wrapper .form-text {
+    color: #6b7280;
+    font-size: 0.75rem;
+    margin-top: 0.25rem;
+  }
+  
+  /* Password requirements styling */
+  .crispy-form-wrapper ul {
+    list-style: none;
+    padding: 0;
+    margin-top: 0.5rem;
+  }
+  
+  .crispy-form-wrapper ul li {
+    font-size: 0.75rem;
+    color: #6b7280;
+    margin-bottom: 0.25rem;
+    padding-left: 1rem;
+    position: relative;
+  }
+  
+  .crispy-form-wrapper ul li:before {
+    content: "•";
+    color: #10b981;
+    position: absolute;
+    left: 0;
+  }
+</style>
+
 {% endblock %}

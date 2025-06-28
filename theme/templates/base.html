@@ -1,198 +1,473 @@
 {% load static %} {% load crispy_forms_tags %}
+
 <!DOCTYPE html>
+
 <html lang="en">
+
   <head>
+
     <meta charset="utf-8" />
+
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+
     <meta name="title" content="project" />
+
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
     <meta name="language" content="English" />
+
     <meta name="author" content="vinayak sharma" />
 
     <title>{% block title %}My Blog{% endblock %}</title>
 
-    <!-- Cropper JS for image resizing -->
+<!-- Cropper JS for image resizing -->
+
      <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" rel="stylesheet"/>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
 
+<!-- Tailwind CSS -->
 
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
 
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
+<!-- Font Awesome -->
 
-    <!-- Custom CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+<!-- Custom CSS -->
+
     <link rel="stylesheet" type="text/css" href="{% static 'index.css' %}" />
 
-    <!-- Roboto Font -->
+<!-- Roboto Font -->
+
      <link rel="preconnect" href="https://fonts.googleapis.com">
+
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@100..900&family=Roboto:ital,wght@0,100..900;1,100..900&family=Rowdies:wght@300;400;700&display=swap" rel="stylesheet">
 
-    <!-- Google Login -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Roboto+Slab:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<!-- Google Login -->
+
     <script src="https://accounts.google.com/gsi/client" async defer></script>
-    <script>
-      function handleCredentialResponse(response) {
-        console.log("Encoded JWT ID token: " + response.credential);
 
-        fetch("/auth-receiver", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ credential: response.credential }),
+    <script>
+
+function handleCredentialResponse(response) {
+
+console.log("Encoded JWT ID token: " + response.credential);
+
+fetch("/auth-receiver", {
+
+method: "POST",
+
+headers: { "Content-Type": "application/json" },
+
+body: JSON.stringify({ credential: response.credential }),
+
         })
+
         .then((res) => res.json())
+
         .then((data) => {
-          if (data.redirect) {
-            window.location.href = data.redirect;
+
+if (data.redirect) {
+
+window.location.href = data.redirect;
+
           } else {
-            alert("Login failed: " + (data.error || "Unknown error"));
+
+alert("Login failed: " + (data.error || "Unknown error"));
+
           }
+
         })
+
         .catch(() => {
-          alert("Login failed due to network/server issue");
+
+alert("Login failed due to network/server issue");
+
         });
+
       }
+
     </script>
+
+    <style>
+      body {
+        font-family: 'Inter', 'Roboto Slab', sans-serif;
+      }
+      
+      .glass-effect {
+        backdrop-filter: blur(10px);
+        background: rgba(17, 24, 39, 0.95);
+      }
+      
+      .nav-link {
+        position: relative;
+        overflow: hidden;
+      }
+      
+      .nav-link::before {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        width: 0;
+        height: 2px;
+        background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+        transition: all 0.3s ease;
+        transform: translateX(-50%);
+      }
+      
+      .nav-link:hover::before {
+        width: 100%;
+      }
+      
+      .btn-primary {
+        background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+        transition: all 0.3s ease;
+      }
+      
+      .btn-primary:hover {
+        background: linear-gradient(135deg, #2563eb, #7c3aed);
+        transform: translateY(-1px);
+        box-shadow: 0 10px 25px rgba(59, 130, 246, 0.3);
+      }
+      
+      .mobile-menu-slide {
+        transform: translateY(-100%);
+        transition: transform 0.3s ease-in-out;
+      }
+      
+      .mobile-menu-slide.show {
+        transform: translateY(0);
+      }
+      
+      .avatar-glow {
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+      }
+    </style>
 
     {% block extra_head %}{% endblock %}
 
-    <!-- Message alerts -->
+<!-- Message alerts -->
+
     {% if messages %}
+
       {% for message in messages %}
+
         <script>alert("{{ message }}");</script>
+
       {% endfor %}
+
     {% endif %}
+
   </head>
 
-  <body class="bg-gray-50 min-h-screen font-family: 'Roboto Slab' leading-normal tracking-normal">
-    <!-- Navbar -->
-    <header class="fixed top-0 w-full bg-gray-900 shadow-lg z-50">
-      <nav class="container mx-auto px-4">
-        <div class="flex items-center justify-between h-16">
-          <!-- Logo/Brand -->
+  <body class="bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 min-h-screen leading-relaxed tracking-wide">
+
+<!-- Navbar -->
+
+    <header class="fixed top-0 w-full glass-effect shadow-xl z-50 border-b border-white/10">
+
+      <nav class="container mx-auto px-6">
+
+        <div class="flex items-center justify-between h-18">
+
+<!-- Logo/Brand -->
+
           <div class="flex-shrink-0">
-            <a href="{% url 'home' %}" class="text-white text-xl font-bold hover:text-gray-300 transition-colors duration-200">
-              Blog
+
+            <a href="{% url 'home' %}" class="text-white text-2xl font-bold hover:text-blue-300 transition-all duration-300 flex items-center space-x-2">
+
+              <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
+
+                <i class="fas fa-blog text-white text-sm"></i>
+
+              </div>
+
+              <span>Blog</span>
+
             </a>
+
           </div>
 
-          <!-- Desktop Menu -->
+<!-- Desktop Menu -->
+
           <div class="hidden md:block">
-            <div class="ml-10 flex align-middle space-x-4">
-              <a href="{% url 'home' %}" class="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-3 rounded-md text-sm items-baseline font-medium transition-colors duration-200">
-                Home
+
+            <div class="ml-10 flex items-center space-x-1">
+
+              <a href="{% url 'home' %}" class="nav-link text-gray-200 hover:text-white px-4 py-3 rounded-lg text-sm font-medium transition-all duration-300 hover:bg-white/10">
+
+                <i class="fas fa-home mr-2"></i>Home
+
               </a>
+
               {% if user.is_authenticated %}
-              <a href="{% url 'profile' %}" class="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 flex items-center">
+
+              <a href="{% url 'profile' %}" class="nav-link text-gray-200 hover:text-white px-4 py-3 rounded-lg text-sm font-medium transition-all duration-300 hover:bg-white/10 flex items-center">
+
                 {% if user.profile.avatar %}
-               <img src="{{ user.profile.avatar }}" alt="avatar" class="w-6 h-6 rounded-full object-cover mr-2 inline-block align-middle" />
+
+               <img src="{{ user.profile.avatar }}" alt="avatar" class="w-7 h-7 rounded-full object-cover mr-3 avatar-glow border-2 border-white/20" />
+
                 {% else %}
-                <i class="fa fa-user mr-2 text-xl inline-block align-middle"></i>
+
+                <div class="w-7 h-7 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center mr-3 avatar-glow">
+
+                  <i class="fas fa-user text-white text-xs"></i>
+
+                </div>
+
                 {% endif %}
-                <span class="align-middle">
+
+                <span class="font-medium">
+
                 {% if user.username|slice:":7" == "google_" %}
+
                 {{ user.first_name }} {{ user.last_name }}
+
                 {% else %}
+
                 {{ user.username }}
+
                 {% endif %}
+
                 </span>
-              <a href="{% url 'logout' %}" class="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 flex items-center">
-                <i class="fa fa-sign-out mr-2"></i> Logout
+
               </a>
+
+              <a href="{% url 'logout' %}" class="nav-link text-gray-200 hover:text-red-300 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-300 hover:bg-red-500/10 flex items-center ml-2">
+
+                <i class="fas fa-sign-out-alt mr-2"></i> Logout
+
+              </a>
+
               {% else %}
-              <a href="{% url 'register' %}" class="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 flex items-center">
-                <i class="fa fa-user mr-2"></i> Sign up
+
+              <a href="{% url 'register' %}" class="nav-link text-gray-200 hover:text-white px-4 py-3 rounded-lg text-sm font-medium transition-all duration-300 hover:bg-white/10 flex items-center">
+
+                <i class="fas fa-user-plus mr-2"></i> Sign up
+
               </a>
-              <a href="{% url 'login' %}" class="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 flex items-center">
-                <i class="fa fa-sign-in mr-2"></i> Log in
+
+              <a href="{% url 'login' %}" class="btn-primary text-white px-8 py-2 rounded-lg text-sm font-medium flex items-center ml-2 shadow-lg">
+
+                <i class="fas fa-sign-in-alt mr-2"></i> Log in
+
               </a>
+
               {% endif %}
+
             </div>
+
           </div>
 
-          <!-- Mobile Menu Button -->
+<!-- Mobile Menu Button -->
+
           <div class="md:hidden">
-            <button id="mobile-menu-button" type="button" class="bg-gray-900 inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-white hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white transition-colors duration-200" aria-controls="mobile-menu" aria-expanded="false">
+
+            <button id="mobile-menu-button" type="button" class="bg-white/10 backdrop-blur-sm inline-flex items-center justify-center p-3 rounded-xl text-gray-300 hover:text-white hover:bg-white/20 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-300 border border-white/10" aria-controls="mobile-menu" aria-expanded="false">
+
               <span class="sr-only">Open main menu</span>
+
               <svg id="hamburger-icon" class="block h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+
               </svg>
+
               <svg id="close-icon" class="hidden h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+
               </svg>
+
             </button>
+
           </div>
+
         </div>
 
-        <!-- Mobile Menu -->
-        <div id="mobile-menu" class="md:hidden hidden">
-          <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-gray-800 rounded-b-lg">
-            <a href="{% url 'home' %}" class="text-gray-300 hover:bg-gray-700 hover:text-white block px-3 py-2 rounded-md text-base font-medium transition-colors duration-200">Home</a>
+<!-- Mobile Menu -->
+
+        <div id="mobile-menu" class="md:hidden hidden mobile-menu-slide">
+
+          <div class="px-4 pt-4 pb-6 space-y-2 bg-white/5 backdrop-blur-sm rounded-2xl mt-4 mb-4 border border-white/10">
+
+            <a href="{% url 'home' %}" class="text-gray-200 hover:bg-white/10 hover:text-white block px-4 py-3 rounded-xl text-base font-medium transition-all duration-300 flex items-center">
+
+              <i class="fas fa-home mr-3 w-5"></i>Home
+
+            </a>
+
             {% if user.is_authenticated %}
-            <a href="{% url 'logout' %}" class="text-gray-300 hover:bg-gray-700 hover:text-white block px-3 py-2 rounded-md text-base font-medium transition-colors duration-200">
-              <i class="fa fa-sign-out mr-2"></i> Logout
+
+            <div class="flex items-center px-4 py-3 text-gray-200 border-b border-white/10 mb-2">
+
+              {% if user.profile.avatar %}
+
+               <img src="{{ user.profile.avatar }}" alt="avatar" class="w-8 h-8 rounded-full object-cover mr-3 border-2 border-white/20" />
+
+              {% else %}
+
+              <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center mr-3">
+
+                <i class="fas fa-user text-white text-sm"></i>
+
+              </div>
+
+              {% endif %}
+
+              <span class="font-medium">
+
+              {% if user.username|slice:":7" == "google_" %}
+
+              {{ user.first_name }} {{ user.last_name }}
+
+              {% else %}
+
+              {{ user.username }}
+
+              {% endif %}
+
+              </span>
+
+            </div>
+
+            <a href="{% url 'logout' %}" class="text-red-300 hover:bg-red-500/10 hover:text-red-200 block px-4 py-3 rounded-xl text-base font-medium transition-all duration-300 flex items-center">
+
+              <i class="fas fa-sign-out-alt mr-3 w-5"></i> Logout
+
             </a>
+
             {% else %}
-            <a href="{% url 'register' %}" class="text-gray-300 hover:bg-gray-700 hover:text-white block px-3 py-2 rounded-md text-base font-medium transition-colors duration-200">
-              <i class="fa fa-user mr-2"></i> Sign up
+
+            <a href="{% url 'register' %}" class="text-gray-200 hover:bg-white/10 hover:text-white block px-4 py-3 rounded-xl text-base font-medium transition-all duration-300 flex items-center">
+
+              <i class="fas fa-user-plus mr-3 w-5"></i> Sign up
+
             </a>
-            <a href="{% url 'login' %}" class="text-gray-300 hover:bg-gray-700 hover:text-white block px-3 py-2 rounded-md text-base font-medium transition-colors duration-200">
-              <i class="fa fa-sign-in mr-2"></i> Log in
+
+            <a href="{% url 'login' %}" class="btn-primary text-white block px-4 py-3 rounded-xl text-base font-medium transition-all duration-300 flex items-center mt-2">
+
+              <i class="fas fa-sign-in-alt mr-3 w-5"></i> Log in
+
             </a>
+
             {% endif %}
+
           </div>
+
         </div>
+
       </nav>
+
     </header>
 
-    <!-- Main Content -->
-    <main class="pt-20 pb-8">
-      <div class="container mx-auto px-4">
+<!-- Main Content -->
+
+    <main class="pt-24 pb-12">
+
+      <div class="container mx-auto px-6">
+
         {% block content %}
-        <!-- Fallback content -->
-        <section class="flex items-center justify-center h-screen">
-          <h1 class="text-5xl">❤️</h1>
+
+<!-- Fallback content -->
+
+        <section class="flex items-center justify-center min-h-[60vh]">
+
+          <div class="text-center">
+
+            <div class="text-8xl mb-6 animate-pulse">❤️</div>
+
+            <h1 class="text-4xl font-bold text-gray-800 mb-4">Welcome to Our Blog</h1>
+
+            <p class="text-xl text-gray-600 max-w-md mx-auto">Share your thoughts, connect with others, and explore amazing content.</p>
+
+          </div>
+
         </section>
+
         {% endblock %}
+
       </div>
+
     </main>
 
-    <!-- Mobile Menu Script -->
+<!-- Mobile Menu Script -->
+
     <script>
-      document.addEventListener("DOMContentLoaded", function () {
-        const mobileMenuButton = document.getElementById("mobile-menu-button");
-        const mobileMenu = document.getElementById("mobile-menu");
-        const hamburgerIcon = document.getElementById("hamburger-icon");
-        const closeIcon = document.getElementById("close-icon");
 
-        mobileMenuButton.addEventListener("click", function () {
-          const isExpanded = mobileMenuButton.getAttribute("aria-expanded") === "true";
-          mobileMenu.classList.toggle("hidden");
-          hamburgerIcon.classList.toggle("hidden");
-          closeIcon.classList.toggle("hidden");
-          mobileMenuButton.setAttribute("aria-expanded", !isExpanded);
+document.addEventListener("DOMContentLoaded", function () {
+
+const mobileMenuButton = document.getElementById("mobile-menu-button");
+
+const mobileMenu = document.getElementById("mobile-menu");
+
+const hamburgerIcon = document.getElementById("hamburger-icon");
+
+const closeIcon = document.getElementById("close-icon");
+
+mobileMenuButton.addEventListener("click", function () {
+
+const isExpanded = mobileMenuButton.getAttribute("aria-expanded") === "true";
+
+mobileMenu.classList.toggle("hidden");
+
+mobileMenu.classList.toggle("show");
+
+hamburgerIcon.classList.toggle("hidden");
+
+closeIcon.classList.toggle("hidden");
+
+mobileMenuButton.setAttribute("aria-expanded", !isExpanded);
+
         });
 
-        document.addEventListener("click", function (event) {
-          const isClickInsideNav = mobileMenuButton.contains(event.target) || mobileMenu.contains(event.target);
-          if (!isClickInsideNav && !mobileMenu.classList.contains("hidden")) {
-            mobileMenu.classList.add("hidden");
-            hamburgerIcon.classList.remove("hidden");
-            closeIcon.classList.add("hidden");
-            mobileMenuButton.setAttribute("aria-expanded", "false");
+document.addEventListener("click", function (event) {
+
+const isClickInsideNav = mobileMenuButton.contains(event.target) || mobileMenu.contains(event.target);
+
+if (!isClickInsideNav && !mobileMenu.classList.contains("hidden")) {
+
+mobileMenu.classList.add("hidden");
+
+mobileMenu.classList.remove("show");
+
+hamburgerIcon.classList.remove("hidden");
+
+closeIcon.classList.add("hidden");
+
+mobileMenuButton.setAttribute("aria-expanded", "false");
+
           }
+
         });
 
-        window.addEventListener("resize", function () {
-          if (window.innerWidth >= 768) {
-            mobileMenu.classList.add("hidden");
-            hamburgerIcon.classList.remove("hidden");
-            closeIcon.classList.add("hidden");
-            mobileMenuButton.setAttribute("aria-expanded", "false");
+window.addEventListener("resize", function () {
+
+if (window.innerWidth >= 768) {
+
+mobileMenu.classList.add("hidden");
+
+mobileMenu.classList.remove("show");
+
+hamburgerIcon.classList.remove("hidden");
+
+closeIcon.classList.add("hidden");
+
+mobileMenuButton.setAttribute("aria-expanded", "false");
+
           }
+
         });
+
       });
+
     </script>
+
   </body>
+
 </html>
