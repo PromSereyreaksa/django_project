@@ -1,40 +1,91 @@
 {% extends "index.html" %}
 {% block content %}
 <div class="max-w-md mx-auto mt-10 p-6 bg-white rounded-lg shadow">
-    <h2 class="text-xl font-semibold mb-4 text-gray-800">Your Profile</h2>
+  <h2 class="text-xl font-semibold mb-4 text-gray-800">Your Profile</h2>
 
-    {% if user.profile.avatar %}
-        <img src="{{ user.profile.avatar }}" alt="Avatar" class="w-24 h-24 rounded-full object-cover mb-4" />
+  {% if user.profile.avatar %}
+    <img src="{{ user.profile.avatar }}" alt="Avatar" class="w-24 h-24 rounded-full object-cover mb-4" />
+  {% else %}
+    <div class="w-24 h-24 rounded-full bg-gray-200 flex items-center justify-center mb-4">
+      <i class="fa fa-user text-gray-500 text-3xl"></i>
+    </div>
+  {% endif %}
+
+  <p class="text-gray-700"><strong>Username:</strong>
+    {% if user.username|slice:":7" == "google_" %}
+      {{ user.first_name }} {{ user.last_name }}
     {% else %}
-        <div class="w-24 h-24 rounded-full bg-gray-200 flex items-center justify-center mb-4">
-            <i class="fa fa-user text-gray-500 text-3xl"></i>
-        </div>
+      {{ user.username }}
     {% endif %}
+  </p>
+  <p class="text-gray-700"><strong>Email:</strong> {{ user.email }}</p>
+  <p class="text-gray-700"><strong>Full Name:</strong> {{ user.get_full_name }}</p>
 
-    <p class="text-gray-700"><strong>Username:</strong>
-      {% if user.username|slice:":7" == "google_" %}
-        {{ user.first_name }} {{ user.last_name }}
-      {% else %}
-        {{ user.username }}
-      {% endif %}
-    </p>
-    <p class="text-gray-700"><strong>Email:</strong> {{ user.email }}</p>
-    <p class="text-gray-700"><strong>Full Name:</strong> {{ user.get_full_name }}</p>
+  <label class="block text-gray-700 font-medium mb-2 mt-6">Upload your avatar</label>
+  <input type="file" id="inputAvatar" accept="image/*" class="block w-full mb-4" />
 
-    <form method="POST" enctype="multipart/form-data" class="mt-6">
-        {% csrf_token %}
-        <label for="id_avatar" class="block text-gray-700 font-medium mb-2">Upload New Avatar:</label>
-        <input type="file" name="avatar" id="id_avatar" accept="image/*" required
-            class="block w-full text-sm text-gray-500
-            file:mr-4 file:py-2 file:px-4
-            file:rounded-md file:border-0
-            file:text-sm file:font-semibold
-            file:bg-blue-50 file:text-blue-700
-            hover:file:bg-blue-100
-            "/>
-        <button type="submit" class="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition">
-            Upload
-        </button>
-    </form>
+  <!-- Cropper preview -->
+  <div style="max-width:300px; max-height:300px; margin-bottom:1rem;">
+    <img id="cropperImage" style="max-width:100%; display:none;" />
+  </div>
+
+  <button id="uploadBtn" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition" disabled>
+    Upload
+  </button>
+
+  <form id="hiddenUploadForm" method="POST" enctype="multipart/form-data" style="display:none;">
+    {% csrf_token %}
+    <input type="file" name="avatar" id="hiddenAvatarInput" />
+  </form>
 </div>
+
+<script>
+  const inputAvatar = document.getElementById('inputAvatar');
+  const cropperImage = document.getElementById('cropperImage');
+  const uploadBtn = document.getElementById('uploadBtn');
+  const hiddenUploadForm = document.getElementById('hiddenUploadForm');
+  const hiddenAvatarInput = document.getElementById('hiddenAvatarInput');
+  let cropper;
+
+  inputAvatar.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const url = URL.createObjectURL(file);
+    cropperImage.src = url;
+    cropperImage.style.display = 'block';
+
+    if (cropper) {
+      cropper.destroy();
+    }
+
+    cropper = new Cropper(cropperImage, {
+      aspectRatio: 1,
+      viewMode: 1,
+      movable: true,
+      zoomable: true,
+      scalable: false,
+      rotatable: false,
+    });
+
+    uploadBtn.disabled = false;
+  });
+
+  uploadBtn.addEventListener('click', () => {
+    if (!cropper) return alert('Please select and crop an image first');
+
+    cropper.getCroppedCanvas().toBlob((blob) => {
+      // Create a new File from the blob
+      const file = new File([blob], 'avatar.png', { type: 'image/png' });
+
+      // Create a DataTransfer to simulate file input
+      const dataTransfer = new DataTransfer();
+      dataTransfer.items.add(file);
+      hiddenAvatarInput.files = dataTransfer.files;
+
+      // Submit the hidden form to your Django view
+      hiddenUploadForm.submit();
+    }, 'image/png');
+  });
+</script>
 {% endblock %}

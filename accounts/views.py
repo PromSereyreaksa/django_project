@@ -23,6 +23,8 @@ from django.shortcuts import redirect
 from django.contrib.auth.decorators import login_required
 from .supabase_client import SUPABASE_URL, supabase
 from .forms import ProfileForm
+from io import BytesIO
+from PIL import Image
 
 # Create your views here.
 def index(request):
@@ -126,48 +128,37 @@ def logout_view(request):
     logout(request)
     messages.success(request, "You have successfully logged out.")
     return redirect('index')
-
-
-@login_required
-def upload_avatar(request):
-    if request.method == 'POST' and request.FILES.get('avatar'):
-        avatar_file = request.FILES['avatar']
-        file_ext = avatar_file.name.split('.')[-1]
-        unique_filename = f"{uuid.uuid4()}.{file_ext}"
-        file_path = f"avatars/{unique_filename}"
-        
-        #Upload to supabase storage/bucket
-        supabase.storage.from_("avatar").upload(file_path, avatar_file,{
-            "contentType" : avatar_file.content_type
-        })
-        
-        #make it public and get URL
-        public_url = supabase.storage.from_("avatar").get_public_url(file_path).get('publicURL')
-        
-        profile = request.user.profile
-        profile.avatar = public_url  # Store the public URL in the Profile model
-        profile.save()
-        messages.success(request, "Avatar uploaded successfully.")
-        return redirect('home')
     
 @login_required
 def profile_views(request):
     profile = request.user.profile
-
     if request.method == 'POST' and 'avatar' in request.FILES:
         avatar_file = request.FILES['avatar']
-        # Generate unique filename
-        filename = f"avatars/{uuid.uuid4().hex}_{avatar_file.name}"
 
-        # Upload to Supabase storage bucket (replace 'avatars' with your bucket name)
-        res = supabase.storage.from_('avatars').upload(filename, avatar_file)
-        if res.get('error'):
-            # Handle error
-            print("Upload error:", res['error'])
-            # Optionally add messages.error or similar
+        # Open image with Pillow
+        image = Image.open(avatar_file)
+
+        # Resize the image (example: max width or height 300px, maintaining aspect ratio)
+        max_size = (300, 300)
+        image.thumbnail(max_size)
+
+        # Save resized image to bytes buffer
+        buffer = BytesIO()
+        image_format = image.format or 'PNG'  # Use original format or PNG fallback
+        image.save(buffer, format=image_format)
+        buffer.seek(0)
+
+        # Create filename
+        filename = f"avatars/{uuid.uuid4().hex}.{image_format.lower()}"
+
+        # Upload resized image bytes to Supabase
+        res = supabase.storage.from_('avatar').upload(filename, buffer.read())
+
+        # Check upload result
+        if hasattr(res, 'error') and res.error:
+            print("Upload error:", res.error)
         else:
-            # Build public URL
-            public_url = f"{SUPABASE_URL}/storage/v1/object/public/avatars/{filename}"
+            public_url = f"{SUPABASE_URL}/storage/v1/object/public/avatar/{filename}"
             profile.avatar = public_url
             profile.save()
             return redirect('profile')
@@ -175,15 +166,6 @@ def profile_views(request):
     return render(request, 'profile_av.html', {'profile': profile})
 
 
-@login_required
-def profile_update(request):
-    profile = request.user.profile
-    if request.method == 'POST':
-        form = ProfileForm(request.POST, request.FILES, instance=profile)
-        if form.is_valid():
-            form.save()
-            return redirect('profile')  # or wherever you want
-    else:
-        form = ProfileForm(instance=profile)
-    return render(request, 'profile_update.html', {'form': form})
+
+
 
